@@ -59,12 +59,24 @@ router.put("/:id", async(req,res) => {
     res.status(200).json({
       status: "success",
       data: {
-        restaurant: results.rows[0]
+        restaurant: results.rows[0],
       }
     })
   }catch(err){
     console.log(err);
   }
-})
+});
+
+router.delete("/:id", async(req, res) => {
+  try{
+    const results = await db.query("DELETE FROM restaurants WHERE id =$1", [req.params.id]);
+
+    res.status(204).json({
+      status: "success"
+    });
+  }catch(err){
+    console.log(err);
+  }
+});
 
 module.exports = router;
