@@ -6,6 +6,6 @@ const UpdatePage = () => {
       Update Page
     </div>
   )
-}
+};
 
 export default UpdatePage;

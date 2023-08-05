@@ -6,6 +6,6 @@ const RestaurantDetailPage = () => {
       Restaurant Detail Page
     </div>
   )
-}
+};
 
 export default RestaurantDetailPage;
