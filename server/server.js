@@ -3,8 +3,9 @@ require("dotenv").config();
 const express  = require("express");
 const app = express();
 const path = require("path");
+const cors = require("cors");
 
-
+app.use(cors())
 app.use(express.json());
 
 const restauRouter = require('./api/restauRouter');
