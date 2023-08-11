@@ -21,12 +21,15 @@ router.get("/", async(req,res) => {
 
 router.get("/:id", async(req,res) => {
   try{
-    const results = await db.query("SELECT * FROM restaurants WHERE id = $1", [req.params.id]);
+    const restaurant = await db.query("SELECT * FROM restaurants WHERE id = $1", [req.params.id]);
+
+    const reviews = await db.query("SELECT * FROM reviews WHERE restaurant_id = $1", [req.params.id]);
 
     res.status(200).json({
       status: "success",
       data: {
-        restaurant : results.rows[0]
+        restaurant : restaurant.rows[0],
+        reviews: reviews.rows
       }
     });
   } catch(err){
@@ -74,6 +77,15 @@ router.delete("/:id", async(req, res) => {
     res.status(204).json({
       status: "success"
     });
+  }catch(err){
+    console.log(err);
+  }
+});
+
+router.post("/:id/addReview", async(req,res) => {
+  try{
+    const results = await db.query("INSERT INTO reviews (restaurant_id, name, body, rating) values ($1, $2, $3, $4) returning *", 
+    [req.body.id, req.body.name, req.body.body, req.body.rating]);
   }catch(err){
     console.log(err);
   }
