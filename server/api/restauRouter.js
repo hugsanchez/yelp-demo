@@ -4,13 +4,14 @@ const db = require('../db');
 
 router.get("/", async(req,res) => {
   try{
-    const results = await db.query("SELECT * FROM restaurants");
+    const restaurantRatingData = await db.query("SELECT * FROM restaurants left join (select restaurant_id, COUNT(*), TRUNC(AVG(rating), 1) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id;");
+
 
     res.status(200).json({
       status: "success",
-      results: results.rows.length,
+      results: restaurantRatingData.rows.length,
       data: {
-        restaurants: results.rows
+        restaurants: restaurantRatingData.rows
       },
     });
   } catch(err){
@@ -21,7 +22,7 @@ router.get("/", async(req,res) => {
 
 router.get("/:id", async(req,res) => {
   try{
-    const restaurant = await db.query("SELECT * FROM restaurants WHERE id = $1", [req.params.id]);
+    const restaurant = await db.query("SELECT * FROM restaurants left join (select restaurant_id, COUNT(*), TRUNC(AVG(rating), 1) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id where id = $1;", [req.params.id]);
 
     const reviews = await db.query("SELECT * FROM reviews WHERE restaurant_id = $1", [req.params.id]);
 
@@ -85,7 +86,14 @@ router.delete("/:id", async(req, res) => {
 router.post("/:id/addReview", async(req,res) => {
   try{
     const results = await db.query("INSERT INTO reviews (restaurant_id, name, body, rating) values ($1, $2, $3, $4) returning *", 
-    [req.body.id, req.body.name, req.body.body, req.body.rating]);
+    [req.params.id, req.body.name, req.body.body, req.body.rating]);
+
+    res.status(201).json({
+      status: "success",
+      data: {
+        review: results.rows[0],
+      }
+    });
   }catch(err){
     console.log(err);
   }
